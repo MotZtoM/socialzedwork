@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Z - Faux Twitter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f4f8;
+    }
+    .header {
+      background-color: #1da1f2;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .header img {
+      width: 40px;
+      height: 40px;
+    }
+    .post {
+      background-color: white;
+      margin: 1rem auto;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      display: flex;
+      gap: 10px;
+    }
+    .post img.avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .post-content {
+      flex: 1;
+    }
+    .post-content strong {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .post-content p {
+      margin: 0.5rem 0;
+    }
+    .form-container {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 2rem auto;
+      max-width: 600px;
+      display: none;
+    }
+    .form-container input,
+    .form-container textarea,
+    .form-container button {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .form-container button {
+      background-color: #1da1f2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .form-container button:hover {
+      background-color: #0d8ae2;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://raw.githubusercontent.com/MotZtoM/z/refs/heads/main/DALL%C2%B7E%202025-01-26%2015.21.14%20-%20A%20minimalist%20logo%20design%20of%20the%20letter%20Z%2C%20inspired%20by%20the%20modern%20aesthetic%20of%20the%20X%20logo%20(formerly%20Twitter).%20The%20design%20features%20sharp%2C%20angular%20lines%20.webp?token=GHSAT0AAAAAAC55N7P5GO44VTPH622PFTXQZ4WI23A" alt="Logo Z">
+    <h1>Z</h1>
+  </div>
+
+  <div id="posts"></div>
+
+  <div class="footer">
+    <button onclick="toggleForm()">Ajouter un Post</button>
+  </div>
+
+  <!-- Formulaire pour ajouter des posts -->
+  <div class="form-container" id="formContainer">
+    <h3>Ajouter un nouveau post</h3>
+    <input type="text" id="username" placeholder="Nom de l'utilisateur">
+    <input type="text" id="avatar" placeholder="Lien vers l'avatar">
+    <textarea id="postText" placeholder="Écrivez votre texte ici..." rows="4"></textarea>
+    <input type="text" id="postImage" placeholder="Lien vers une image (optionnel)">
+    <input type="text" id="postVideo" placeholder="Lien vers une vidéo YouTube (optionnel)">
+    <button onclick="addPost()">Publier</button>
+  </div>
+
+  <script>
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+    // Fonction pour afficher les posts
+    function displayPosts(limit = 5) {
+      const postsContainer = document.getElementById('posts');
+      const displayedPosts = posts.slice(0, limit);
+
+      displayedPosts.forEach((post) => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+          <img src="${post.avatar}" alt="Avatar" class="avatar">
+          <div class="post-content">
+            <strong>${post.username} · ${new Date(post.date).toLocaleString()}</strong>
+            <p>${post.text}</p>
+            ${post.image ? `<img src="${post.image}" alt="Image">` : ''}
+            ${post.video ? `<iframe width="100%" height="315" src="${post.video}" frameborder="0" allowfullscreen></iframe>` : ''}
+          </div>
+        `;
+        postsContainer.appendChild(postElement);
+      });
+
+      // Gestion du défilement infini
+      if (limit < posts.length) {
+        window.addEventListener('scroll', () => {
+          if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            displayPosts(limit + 5); // Charger 5 posts supplémentaires
+          }
+        });
+      }
+    }
+
+    // Fonction pour ajouter un post
+    function addPost() {
+      const username = document.getElementById('username').value || 'Anonyme';
+      const avatar = document.getElementById('avatar').value || 'default_avatar_url';
+      const text = document.getElementById('postText').value;
+      const image = document.getElementById('postImage').value;
+      const video = document.getElementById('postVideo').value;
+
+      if (!text) {
+        alert('Veuillez écrire un texte pour votre post.');
+        return;
+      }
+
+      const newPost = {
+        username,
+        avatar,
+        text,
+        image,
+        video: video ? `https://www.youtube.com/embed/${video.split('v=')[1]}` : null,
+        date: new Date().toISOString()
+      };
+
+      posts.unshift(newPost); // Ajouter au début de la liste
+      localStorage.setItem('posts', JSON.stringify(posts));
+      document.getElementById('posts').innerHTML = ''; // Réinitialiser l'affichage
+      displayPosts(); // Afficher les posts
+      toggleForm(); // Fermer le formulaire
+    }
+
+    // Fonction pour afficher/masquer le formulaire
+    function toggleForm() {
+      const form = document.getElementById('formContainer');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Charger les posts au démarrage
+    displayPosts();
+  </script>
+</body>
+</html>
