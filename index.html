@@ -182,7 +182,7 @@
     // Fonction pour afficher/masquer le formulaire
     function toggleForm() {
       const form = document.getElementById('formContainer');
-      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
     // Charger les posts au démarrage
